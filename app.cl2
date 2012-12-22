@@ -1,15 +1,25 @@
 (import! [:private "boot.cl2"])
 
-(def express (require "express"))
 (def routes (require "./routes"))
-(def socket (require "./routes/socket.js"))
+(include! "./routes/socket.cl2")
+
+(def express (require "express"))
+(def sockjs (require "sockjs"))
+(def http (require "http"))
+
+(def chat
+  (. sockjs
+     (createServer
+      {:sockjs_url: "http://cdn.sockjs.org/sockjs-0.3.min.js"})))
+
+(. chat (on "connection" on-connection))
 
 (def app (express))
-(def http (require "http"))
 (def server (.. http (createServer app)))
-(def io (.. (require "socket.io") (listen server)))
 
-(.. server (listen 3000))
+(. chat (installHandlers server {:prefix "/chat"}))
+(console.log " [*] Listening on 0.0.0.0:9999")
+(. server (listen 3000))
 
 (..
  app
@@ -45,26 +55,10 @@
  app
  (configure
   "production"
-  (fn [] (do (.. app (use (.. express errorHandler))) undefined))))
+  (fn []  (. app (use (. express errorHandler))))))
 
-(.. app (get "/" (-> routes :index)))
+(. app (get "/" (-> routes :index)))
 
-(.. app (get "/partials/:name" (-> routes :partials)))
+(. app (get "/partials/:name" (-> routes :partials)))
 
-(.. app (get "*" (-> routes :index)))
-
-(.. (-> io :sockets) (on "connection" socket))
-
-(..
- server
- (listen
-  3000
-  (fn
-   []
-   (do
-    (..
-     console
-     (log
-      "Express server listening on port %d"
-      (-> (.. server address) :port)))
-    undefined))))
+;;(.. app (get "*" (-> routes :index)))
