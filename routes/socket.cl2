@@ -17,6 +17,7 @@ over the network."
 (defn deserialize
   "Converts a serialized message back to object"
   [data]
+  ;;TODO: error handler
   (.. JSON (parse data)))
 
 (defn whisper
@@ -30,15 +31,15 @@ over the network."
   "Sends messages to many clients. An excluded client can be specified"
   [message exclude]
   (dokeys [id clients]
-   (if (!= id exclude)
-     (.. (get clients i) (write (.. JSON (stringify message)))))))
+   (if (not= id exclude)
+     (.. (get clients id) (write (.. JSON (stringify message)))))))
 
 (defn claim
   "Registers a new user-name"
   [new-name]
   (if-not (or (not new-name) (get claimed-names new-name))
-    (set! (get claimed-names new-name) true)
-    true))
+    (do (set! (get claimed-names new-name) true)
+        true)))
 
 (defn gen-guest-name
   "Generates a unique guest name for each newcomer."
@@ -70,20 +71,52 @@ or user changes his/her name."
   [conn]
   (set! (:name conn) (gen-guest-name))
   (set! (get clients (:id conn)) conn)
-  (broadcast {:type "new-user" :name (:name conn) :users (get-users)}
+  (console.log "Fire in the hole!" (:id conn) (:name conn) claimed-names)
+  (broadcast {:type "new-user" :name (:name conn) :users (get-users)} ;;in use?
              (:id conn))
   (whisper
    (:id conn)
-   {:name (:name conn) :type "welcome"})
+   {:type "init"
+    :name (:name conn) :users (get-users)})
   (whisper
    (:id conn)
    {:id (:id conn), :message buffer, :type "history"})
-  (.. conn (on "data" on-data))
-  (.. conn (on "close" on-close)))
+  (.. conn (on "data" #(on-data % conn)))
+  (.. conn (on "close" #(on-close conn))))
+
+(defn on-change-name
+  "Handles on-change-name events"
+  [data conn]
+  (if (claim (:name data))
+    (do
+      (def old-name (:name data))
+      (free-name old-name)
+      (set! (:name conn) (:name data))
+      (broadcast {:type "change-name"
+                  :new-name (:name data)
+                  :old-name old-name}))))
+
+(defn on-data
+  "Handles messages when an on-data event happens"
+  [data conn]
+  ;; TODO: max data size?
+  (console.log "Yummy... got some data" (type data))
+  (set! data (deserialize data))
+  (console.log "Good, let's see" (:type data))
+  (console.log data)
+  (cond
+   (and (== (-> data :type) "text")
+        (-> data :message))
+   (on-text data conn)
+
+   (and (== (:type data) "change-name")
+        (:name data))
+   (on-change-name data conn)))
 
 (defn on-text
   "Handles text events"
-  []
+  [data conn]
+  (console.log "Got some text. Have fun!")
   (set!
    (-> data :message)
    (.. (-> data :message) (substr 0 128)))
@@ -91,36 +124,14 @@ or user changes his/her name."
   (if (> (count buffer) 15) (.. buffer shift))
   (.. buffer (push (-> data :message)))
   (broadcast
-   {:id (:id conn),
+   {:name (:name conn),
     :message (-> data :message),
-    :type "message"}))
-
-(defn on-change-name
-  "Handles on-change-name events"
-  []
-  (if (claim (:name data))
-    (do
-      (def old-name (:name data))
-      (free old-name)
-      (set! (:name conn) (:name data))
-      (broadcast "change-name" {:new-name name, :old-name old-name}))))
-
-(defn on-data
-  "Handles messages when an on-data event happens"
-  [data]
-  ;; TODO: max data size?
-  (set! data (deserialize data))
-  (cond
-   (and (== (-> data :type) "text")
-        (-> data :message))
-   (on-text)
-
-   (== (:name data) "change-name")
-   (on-change-name)))
+    :type "text"}))
 
 (defn on-close
   "Handles close connection events"
-  []
+  [conn]
   (free-name (:name conn))
   (delete (get clients (:id conn)))
-  (broadcast {:type "user-left" :name (:name conn)}))
+  (broadcast {:type "user-left" :name (:name conn)})
+  (console.log clients claimed-names))
