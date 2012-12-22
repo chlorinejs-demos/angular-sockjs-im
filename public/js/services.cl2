@@ -2,48 +2,25 @@
  app
  (factory
   "socket"
-  (fn
-   [$rootScope]
-   (do
-    (def socket (.. io connect))
+  (fn [$rootScope]
+    (def sock (new SockJS "http://localhost:3000/chat"))
     {:emit
-     (fn
-      [eventName data callback]
-      (do
+     (fn [data callback]
+       (def args arguments)
        (..
-        socket
-        (emit
-         eventName
-         data
-         (fn
-          []
-          (do
-           (def args arguments)
-           (..
-            $rootScope
-            ($apply
-             (fn
-              []
-              (do
-               (if callback (.. callback (apply socket args)))
-               undefined))))
-           undefined))))
-       undefined)),
+        $rootScope
+        ($apply
+         (fn [] (if callback (.. callback (apply socket args))))))
+       (.. sock (send (serialize data))))
      :on
-     (fn
-      [eventName callback]
-      (do
+     (fn [eventName callback]
        (..
-        socket
+        sock
         (on
          eventName
-         (fn
-          []
-          (do
+         (fn []
            (def args arguments)
            (..
             $rootScope
             ($apply
-             (fn [] (do (.. callback (apply socket args)) undefined))))
-           undefined))))
-       undefined))}))))
+             (fn [] (.. callback (apply socket args)))))))))})))
