@@ -1,6 +1,6 @@
 ;(import! [:private "boot.cl2"])
 
-(def buffer [])
+
 (def ^{:doc "Stores client's connections currently in use"}
   clients {})
 (def ^{:doc "User-id counter used in generating guest names"}
@@ -23,7 +23,7 @@ over the network."
 (defn whisper
   "Sends messages to a single client"
  [id message]
- (if (not (get clients id))
+ (if (get clients id)
    (.. (get clients id)
        (write (serialize message)))))
 
@@ -61,10 +61,7 @@ or user changes his/her name."
 (defn get-users
   "Returns list of current users."
   []
-  (def users [])
-  (dokeys [user claimed-names]
-          (.. users (push user)))
-  users)
+  (keys claimed-names))
 
 (defn on-connection
   "Handles connections."
@@ -78,9 +75,6 @@ or user changes his/her name."
    (:id conn)
    {:type "init"
     :name (:name conn) :users (get-users)})
-  (whisper
-   (:id conn)
-   {:id (:id conn), :message buffer, :type "history"})
   (.. conn (on "data" #(on-data % conn)))
   (.. conn (on "close" #(on-close conn))))
 
@@ -89,7 +83,7 @@ or user changes his/her name."
   [data conn]
   (if (claim (:name data))
     (do
-      (def old-name (:name data))
+      (def old-name (:name conn))
       (free-name old-name)
       (set! (:name conn) (:name data))
       (broadcast {:type "change-name"
@@ -105,13 +99,24 @@ or user changes his/her name."
   (console.log "Good, let's see" (:type data))
   (console.log data)
   (cond
-   (and (== (-> data :type) "text")
+   (and (== (:type data) "text")
         (-> data :message))
    (on-text data conn)
+
+   (== (:type data) "init")
+   (on-init conn)
 
    (and (== (:type data) "change-name")
         (:name data))
    (on-change-name data conn)))
+
+(defn on-init
+  [conn]
+  (console.log "Oh dear, init from " (:id conn))
+  (whisper
+   (:id conn)
+   {:type "init"
+    :name (:name conn) :users (get-users)}))
 
 (defn on-text
   "Handles text events"
@@ -121,8 +126,6 @@ or user changes his/her name."
    (-> data :message)
    (.. (-> data :message) (substr 0 128)))
 
-  (if (> (count buffer) 15) (.. buffer shift))
-  (.. buffer (push (-> data :message)))
   (broadcast
    {:name (:name conn),
     :message (-> data :message),
