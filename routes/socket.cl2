@@ -30,6 +30,7 @@ over the network."
 (defn broadcast
   "Sends messages to many clients. An excluded client can be specified"
   [message exclude]
+  (console.log "Broadcasting " message exclude)
   (dokeys [id clients]
    (if (not= id exclude)
      (.. (get clients id) (write (.. JSON (stringify message)))))))
@@ -129,7 +130,8 @@ or user changes his/her name."
   (broadcast
    {:name (:name conn),
     :message (-> data :message),
-    :type "text"}))
+    :type "text"}
+   (:id conn)))
 
 (defn on-close
   "Handles close connection events"
