@@ -60,9 +60,6 @@
 
 (defn AppCtrl [$scope socket]
   (set! (-> $scope :messages) [])
-  (defn socket.onmessage [message]
-    ($scope.$apply
-     (fn [] (sock-handler (deserialize (:data message)) $scope))))
   (defn $scope.changeName []
     (if (not (.. socket (emit {:type "change-name"
                                :name (-> $scope :newName)})))
