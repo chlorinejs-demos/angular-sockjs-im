@@ -59,7 +59,8 @@
 (defn AppCtrl [$scope socket]
   (set! (-> $scope :messages) [])
   (defn socket.onmessage [message]
-          (sock-handler (deserialize (:data message)) $scope))
+    ($scope.$apply
+     (fn [] (sock-handler (deserialize (:data message)) $scope))))
   (defn $scope.changeName []
     (if (not (.. socket (emit {:type "change-name"
                                :name (-> $scope :newName)})))
@@ -68,8 +69,8 @@
         (set! (-> $scope :name) (-> $scope :newName))
         (set! (-> $scope :newName) ""))))
   (defn $scope.sendMessage []
-     (. socket (emit {:type "text"
-                      :message (-> $scope :message)}))
-     (. (-> $scope :messages)
-        (push {:text (-> $scope :message), :user (-> $scope :name)}))
-     (set! (-> $scope :message) "")))
+    (. socket (emit {:type "text"
+                     :message (-> $scope :message)}))
+    (. (-> $scope :messages)
+       (push {:text (-> $scope :message), :user (-> $scope :name)}))
+    (set! (-> $scope :message) "")))
