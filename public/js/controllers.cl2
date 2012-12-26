@@ -43,18 +43,20 @@
     ))
 
 (defn change-name
-    [old-name new-name $scope]
-    (console.log "Before, users: " (-> $scope :users))
-    (console.log "and old name is: " old-name)
-    (set! (-> $scope :users)
-          (conj (filter #(not= % old-name) (-> $scope :users))
-                new-name))
-    (console.log "After, users: " (-> $scope :users))
-    (..
-     (-> $scope :messages)
-     (push
-      {:text (+ "User " old-name " is now known as " new-name "."),
-       :user "chatroom"})))
+  [old-name new-name $scope]
+  (console.log "Before, users: " (-> $scope :users))
+  (console.log "and old name is: " old-name)
+  (set! (-> $scope :users)
+        (conj (filter #(not= % old-name) (-> $scope :users))
+              new-name))
+  (console.log "After, users: " (-> $scope :users))
+  (if (= old-name (:name $scope))
+    (set! (-> $scope :name) new-name))
+  (..
+   (-> $scope :messages)
+   (push
+    {:text (+ "User " old-name " is now known as " new-name "."),
+     :user "chatroom"})))
 
 (defn AppCtrl [$scope socket]
   (set! (-> $scope :messages) [])
@@ -65,9 +67,7 @@
     (if (not (.. socket (emit {:type "change-name"
                                :name (-> $scope :newName)})))
       (alert "There was an error changing your name")
-      (do
-        (set! (-> $scope :name) (-> $scope :newName))
-        (set! (-> $scope :newName) ""))))
+      (set! (-> $scope :newName) "")))
   (defn $scope.sendMessage []
     (. socket (emit {:type "text"
                      :message (-> $scope :message)}))
