@@ -1,6 +1,15 @@
-# Angular Socket.IO IM Demo
+# Angular SockJS IM Demo
 
-A simple instant messaging app to demo the [AngularJS Socket.IO Seed](https://github.com/btford/angular-socket-io-seed). [A walkthrough of writing the application is available on my blog](http://briantford.com/blog/angular-socket-io.html).
+A simple instant messaging app written in Clojure/[Chlorine](https://github.com/myguidingstar/chlorine)
+
+# Compiling
+You need [Chloric](https://github.com/myguidingstar/chloric) (Chlorine compiler) installed. 
+
+Run:
+
+    ./compile.sh
+
+to have all Clojure/Chlorine (.cl2) files compiled to javascript.
 
 ## Running it
 
