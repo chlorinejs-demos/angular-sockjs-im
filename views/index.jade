@@ -1,7 +1,7 @@
 extends layout
 
 block body
-  h1 Angular Socket.io IM Demo App
+  h1 Angular SockJS IM Demo App
   div(ng-controller='AppCtrl')
     .col
       h3 Messages
@@ -28,6 +28,5 @@ block body
         input(type='submit', value='Change Name')
 
   script(src='js/lib/sockjs-0.3.min.js')
-
   script(src='js/lib/angular/angular.min.js')
   script(src='js/app.js')
