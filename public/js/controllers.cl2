@@ -6,18 +6,16 @@
     (do
       (console.log "initializing... Go!")
       (set! (-> $scope :name) (-> data :name))
-      (set! (-> $scope :users) (-> data :users))
-      break)
+      (set! (-> $scope :users) (-> data :users)))
 
     "text"
-    (do (.. (-> $scope :messages)
-            (push {:text (-> data :message), :user (-> data :name)}))
-        break)
+    (.. (-> $scope :messages)
+        (push {:text (-> data :message), :user (-> data :name)}))
+
 
     "change-name"
-    (do (change-name (-> data :old-name) (-> data :new-name)
-                     $scope)
-        break)
+    (change-name (-> data :old-name) (-> data :new-name)
+                 $scope)
 
     "new-user"
     (do
@@ -26,8 +24,7 @@
        (push
         {:text (+ "User " (-> data :name) " has joined."),
          :user "chatroom"}))
-      (.. (-> $scope :users) (push (-> data :name)))
-      break)
+      (.. (-> $scope :users) (push (-> data :name))))
 
     "user-left"
     (do
@@ -38,8 +35,7 @@
          :user "chatroom"}))
       (set! (:users $scope)
             (filter #(not= (:name data))
-                    (:users $scope)))
-      break)
+                    (:users $scope))))
     ))
 
 (defn change-name
