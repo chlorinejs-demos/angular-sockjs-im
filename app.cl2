@@ -10,7 +10,8 @@
 (def chat
   (.. sockjs
      (createServer
-      {:sockjs_url "http://cdn.sockjs.org/sockjs-0.3.min.js"})))
+      {:websocket false
+       :sockjs_url "http://cdn.sockjs.org/sockjs-0.3.min.js"})))
 
 (. chat (on "connection" on-connection))
 
