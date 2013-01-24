@@ -1,14 +1,14 @@
 # Angular SockJS IM Demo
 
-A simple instant messaging app written in Clojure/[Chlorine](https://github.com/myguidingstar/chlorine)
+A simple instant messaging app written in Clojure/[Chlorine](https://github.com/chlorinejs/chlorine)
 
 # Compiling
-You need [Chloric](https://github.com/myguidingstar/chloric) (Chlorine compiler) installed. 
+You need [Chloric](https://github.com/chlorinejs/chloric) (Chlorine compiler) installed. 
 
 Run:
-
-    ./compile.sh
-
+```bash
+    ./compile.sh -1
+```
 to have all Clojure/Chlorine (.cl2) files compiled to javascript.
 
 ## Running it
