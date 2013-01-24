@@ -1,13 +1,16 @@
+(def sockjs-url (+* window.location.protocol "//"
+                    window.location.host
+                    "/chat"))
 (..
  app
  (factory
   "socket"
   (fn [$rootScope]
-    (def sock (new SockJS "http://localhost:3000/chat"
-                          ['xdr-streaming 'xhr-streaming
-                           'iframe-eventsource 'iframe-htmlfile
-                           'xdr-polling 'xhr-polling
-                           'iframe-xhr-polling 'jsonp-polling]))
+    (def sock (new SockJS sockjs-url
+                   ['xdr-streaming 'xhr-streaming
+                    'iframe-eventsource 'iframe-htmlfile
+                    'xdr-polling 'xhr-polling
+                    'iframe-xhr-polling 'jsonp-polling]))
     (defn sock.onopen []
       (console.log "Connected"))
     (defn sock.emit[data]
