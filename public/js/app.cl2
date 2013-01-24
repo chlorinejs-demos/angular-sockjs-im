@@ -1,5 +1,4 @@
-(import! [:private "boot.cl2"])
-(include-core!)
+(include! [:private "dev.cl2"])
 
 (defn serialize
   "Converts a message object to JSON strings so that it can be transfered
@@ -12,11 +11,10 @@ over the network."
   [data]
   (.. JSON (parse data)))
 
-(def
- app
+(def app
  (.. angular (module "myApp" ["myApp.filters" "myApp.directives"])))
 
-(include! "./services.cl2")
-(include! "./controllers.cl2")
-(include! "./filters.cl2")
-(include! "./directives.cl2")
+(include! "./services.cl2"
+          "./controllers.cl2"
+          "./filters.cl2"
+          "./directives.cl2")

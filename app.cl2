@@ -1,5 +1,4 @@
-(import! [:private "boot.cl2"])
-(include-core!)
+(include! [:private "dev.cl2"])
 
 (def routes (require "./routes"))
 (include! "./routes/socket.cl2")
