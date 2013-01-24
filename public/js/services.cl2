@@ -6,11 +6,12 @@
  (factory
   "socket"
   (fn [$rootScope]
-    (def sock (new SockJS sockjs-url
-                   ['xdr-streaming 'xhr-streaming
-                    'iframe-eventsource 'iframe-htmlfile
-                    'xdr-polling 'xhr-polling
-                    'iframe-xhr-polling 'jsonp-polling]))
+    (def sock (new SockJS sockjs-url undefined
+                   {:protocols_whitelist
+                    ['xdr-streaming 'xhr-streaming
+                     'iframe-eventsource 'iframe-htmlfile
+                     'xdr-polling 'xhr-polling
+                     'iframe-xhr-polling 'jsonp-polling]}))
     (defn sock.onopen []
       (console.log "Connected"))
     (defn sock.emit[data]
