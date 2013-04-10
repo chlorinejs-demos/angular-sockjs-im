@@ -1,12 +1,8 @@
-(import! [:private "boot.cl2"])
+(defn exports.index
+  [req res]
+  (.. res (render "index")))
 
-(set!
- (-> exports :index)
- (fn [req res] (.. res (render "index"))))
-
-(set!
- (-> exports :partials)
- (fn
+(defn exports.partials
   [req res]
   (def name (-> req :params :name))
-  (.. res (render (+ "partials/" name)))))
+  (.. res (render (+ "partials/" name))))

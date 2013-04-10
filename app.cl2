@@ -1,5 +1,3 @@
-(include! [:private "dev.cl2"])
-
 (def routes (require "./routes"))
 (include! "./routes/socket.cl2")
 
@@ -8,7 +6,7 @@
 (def http (require "http"))
 
 (def chat
-  (.. sockjs
+  (. sockjs
      (createServer
       {:websocket false
        :sockjs_url "http://cdn.sockjs.org/sockjs-0.3.min.js"})))

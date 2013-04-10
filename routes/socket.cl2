@@ -1,6 +1,3 @@
-;(import! [:private "boot.cl2"])
-
-
 (def ^{:doc "Stores client's connections currently in use"}
   clients {})
 (def ^{:doc "User-id counter used in generating guest names"}
@@ -12,19 +9,19 @@
   "Converts a message object to JSON strings so that it can be transfered
 over the network."
   [msg]
-  (.. JSON (stringify msg)))
+  (. JSON (stringify msg)))
 
 (defn deserialize
   "Converts a serialized message back to object"
   [data]
   ;;TODO: error handler
-  (.. JSON (parse data)))
+  (. JSON (parse data)))
 
 (defn whisper
   "Sends messages to a single client"
- [id message]
- (if (get clients id)
-   (.. (get clients id)
+  [id message]
+  (if (get clients id)
+    (. (get clients id)
        (write (serialize message)))))
 
 (defn broadcast
@@ -33,14 +30,14 @@ over the network."
   (console.log "Broadcasting " message exclude)
   (dokeys [id clients]
    (if (not= id exclude)
-     (.. (get clients id) (write (.. JSON (stringify message)))))))
+     (. (get clients id) (write (. JSON (stringify message)))))))
 
 (defn claim
   "Registers a new user-name"
   [new-name]
-  (if-not (or (not new-name) (get claimed-names new-name))
-    (do (set! (get claimed-names new-name) true)
-        true)))
+  (when-not (or (not new-name) (get claimed-names new-name))
+    (set! (get claimed-names new-name) true)
+    true))
 
 (defn gen-guest-name
   "Generates a unique guest name for each newcomer."
@@ -67,8 +64,8 @@ or user changes his/her name."
 (defn on-connection
   "Handles connections."
   [conn]
-  (set! (:name conn) (gen-guest-name))
-  (set! (get clients (:id conn)) conn)
+  (set! conn.name (gen-guest-name))
+  (set! (get clients conn.id) conn)
   (console.log "Fire in the hole!" (:id conn) (:name conn) claimed-names)
   (broadcast {:type "new-user" :name (:name conn) :users (get-users)} ;;in use?
              (:id conn))
@@ -86,7 +83,7 @@ or user changes his/her name."
     (do
       (def old-name (:name conn))
       (free-name old-name)
-      (set! (:name conn) (:name data))
+      (set! conn.name (:name data))
       (broadcast {:type "change-name"
                   :new-name (:name data)
                   :old-name old-name}))))
@@ -124,12 +121,12 @@ or user changes his/her name."
   [data conn]
   (console.log "Got some text. Have fun!")
   (set!
-   (-> data :message)
-   (.. (-> data :message) (substr 0 128)))
+   data.message
+   (.. data.message (substr 0 128)))
 
   (broadcast
    {:name (:name conn),
-    :message (-> data :message),
+    :message (:message data),
     :type "text"}
    (:id conn)))
 
