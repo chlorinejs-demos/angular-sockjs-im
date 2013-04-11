@@ -5,6 +5,12 @@
 (def ^{:doc "Stores user-names currently in use"}
   claimed-names {})
 
+(defmacro do-interval [time & body]
+  `(setInterval
+    (fn []
+      ~@body)
+    ~time))
+
 (defn serialize
   "Converts a message object to JSON strings so that it can be transfered
 over the network."
@@ -64,6 +70,11 @@ or user changes his/her name."
 (defn on-connection
   "Handles connections."
   [conn]
+  (def t (do-interval
+          5000
+          (try
+            (.. conn -_session -recv didClose)
+            (catch x nil))))
   (set! conn.name (gen-guest-name))
   (set! (get clients conn.id) conn)
   (console.log "Fire in the hole!" (:id conn) (:name conn) claimed-names)
@@ -74,7 +85,10 @@ or user changes his/her name."
    {:type "init"
     :name (:name conn) :users (get-users)})
   (.. conn (on "data" #(on-data % conn)))
-  (.. conn (on "close" #(on-close conn))))
+  (.. conn (on "close" (fn []
+                         (clearInterval t)
+                         (set! t nil)
+                         (on-close conn)))))
 
 (defn on-change-name
   "Handles on-change-name events"

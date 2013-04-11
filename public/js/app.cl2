@@ -125,10 +125,7 @@ over the network."
     [$rootScope]
     (def sock (SockJS. sockjs-url nil
                        {:protocols_whitelist
-                        ['xdr-streaming 'xhr-streaming
-                         'iframe-eventsource 'iframe-htmlfile
-                         'xdr-polling 'xhr-polling
-                         'iframe-xhr-polling 'jsonp-polling]}))
+                        ['xhr-polling]}))
     ;; Adds some basic methods: `onopen` and `emit` to the new sockjs instance
     (defn sock.onopen []
       (console.log "Connected"))
