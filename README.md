@@ -3,7 +3,7 @@
 A simple instant messaging app written in Clojure/[Chlorine](https://github.com/chlorinejs/chlorine)
 
 # Compiling
-You need [Chloric](https://github.com/chlorinejs/chloric) (Chlorine compiler) installed. 
+You need [Chloric](https://github.com/chlorinejs/chloric) (Chlorine compiler) installed.
 
 Run:
 ```bash
@@ -22,3 +22,9 @@ Then run the app like so:
 node app.js
 ```
 And navigate to `localhost:3000`
+
+## Online demo
+
+See it online here:
+
+http://sockjs.ap01.aws.af.cm/
