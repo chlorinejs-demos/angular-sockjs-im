@@ -3,8 +3,14 @@
   , "version": "0.0.1"
   , "private": true
   , "dependencies": {
-      "express": ">=3.0.0"
-    , "jade": ">= 0.26.1"
-    , "sockjs": ">= 0.3.5"
+      "express"    : ">=3.0.0"
+    , "jade"       : ">= 0.26.1"
+    , "sockjs"     : ">= 0.3.5"
+    , "angular-cl2": "0.1.0"
+    , "chloric"    : "0.1.9"
+  }
+  , "scripts": {
+      "watch": "cl2c -d public/js/app.cl2 routes/index.cl2 routes/socket.cl2 app.cl2",
+      "compile": "cl2c -1 -B public/js/app.cl2 routes/index.cl2 routes/socket.cl2 app.cl2"
   }
 }
