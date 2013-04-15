@@ -2,25 +2,38 @@
 
 A simple instant messaging app written in Clojure/[Chlorine](https://github.com/chlorinejs/chlorine)
 
-# Compiling
-You need [Chloric](https://github.com/chlorinejs/chloric) (Chlorine compiler) installed.
+You need Java, NodeJS and Bower installed.
 
-Run:
-```bash
-./compile.sh -1
+## Installation
+Grab the dependencies:
+
 ```
-to have all Clojure/Chlorine (.cl2) files compiled to javascript.
+npm install && bower install
+```
+
+## Compilation
+
+Type:
+```
+npm run-script compile
+```
+
+to have all Chlorine `*.cl2` files compiled to javascript.
+
+or you can also type instead:
+```
+npm run-script watch
+```
+
+so that the compiler will re-compile all everytime there's a change to the source files.
 
 ## Running it
 
-First, grab the dependencies with npm:
-```bash
-npm install
+Run the nodejs app like normal:
 ```
-Then run the app like so:
-```bash
 node app.js
 ```
+
 And navigate to `localhost:3000`
 
 ## Online demo
