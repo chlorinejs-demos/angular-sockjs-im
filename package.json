@@ -6,7 +6,7 @@
       "express"    : ">=3.0.0"
     , "jade"       : ">= 0.26.1"
     , "sockjs"     : ">= 0.3.5"
-    , "angular-cl2": "0.1.0"
+    , "angular-cl2": "0.2.0"
     , "chloric"    : "0.1.10"
   }
   , "scripts": {
