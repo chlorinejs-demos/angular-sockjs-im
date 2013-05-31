@@ -1,9 +1,9 @@
-(def routes (require "./routes"))
-(include! "./routes/socket.cl2")
+(require "./routes")
+(load-file "./routes/socket.cl2")
 
-(def express (require "express"))
-(def sockjs (require "sockjs"))
-(def http (require "http"))
+(require "express")
+(require "sockjs")
+(require "http")
 
 (def chat
   (. sockjs
