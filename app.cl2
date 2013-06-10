@@ -1,9 +1,9 @@
-(require "./routes")
-(load-file "./routes/socket.cl2")
+(require ["./routes"]
+         ["express"]
+         ["http"]
+         ["sockjs"])
 
-(require "express")
-(require "sockjs")
-(require "http")
+(load-file "./routes/socket.cl2")
 
 (def chat
   (. sockjs
@@ -14,43 +14,42 @@
 (. chat (on "connection" on-connection))
 
 (def app (express))
-(def server (.. http (createServer app)))
+(def server (. http (createServer app)))
 
 (. chat (installHandlers server {:prefix "/chat"}))
+
 (console.log " [*] Listening on 3000")
 (. server (listen 3000))
 
-(..
- app
- (configure
-  (fn []
-   (.. app (set "views" (+ __dirname "/views")))
-   (.. app (set "view engine" "jade"))
-   (.. app (set "view options" {:layout false}))
-   (.. app (use (.. express bodyParser)))
-   (.. app (use (.. express methodOverride)))
-   (.. app (use (.. express (static (+ __dirname "/public")))))
-   (.. app (use (-> app :router))))))
+(borrow-macros doto)
 
-(..
+(.
  app
  (configure
-  "development"
-  (fn
-   []
-   (.. app
-     (use
-      (.. express
-       (errorHandler {:showStack true, :dumpExceptions true})))))))
+  #(doto app
+     (.set "views" (+ __dirname "/views"))
+     (.set "view engine" "jade")
+     (.set "view options" {:layout false})
+     (.use (. express bodyParser))
+     (.use (. express methodOverride))
+     (.use (. express (static (+ __dirname "/public"))))
+     (.use (:router app)))))
 
-(..
- app
- (configure
-  "production"
-  (fn []  (. app (use (. express errorHandler))))))
+(. app
+   (configure
+    "development"
+    #(. app
+        (use
+         (. express
+            (errorHandler {:showStack true, :dumpExceptions true}))))))
+
+(. app
+   (configure
+    "production"
+    #(. app (use (. express errorHandler)))))
 
 (. app (get "/" (-> routes :index)))
 
-(. app (get "/partials/:name" (-> routes :partials)))
+(. app (get "/partials/:name" (:partials routes )))
 
 ;;(.. app (get "*" (-> routes :index)))
