@@ -3,6 +3,10 @@
          ["http"]
          ["sockjs"])
 
+(load-file "./node_modules/cl2-contrib/src/concurrency.cl2")
+(load-file "./node_modules/cl2-contrib/src/timers.cl2")
+(load-file "./node_modules/socket-cl2/src/server.cl2")
+
 (load-file "./routes/socket.cl2")
 
 (def chat
@@ -20,8 +24,6 @@
 
 (console.log " [*] Listening on 3000")
 (. server (listen 3000))
-
-(borrow-macros doto)
 
 (.
  app
