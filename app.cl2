@@ -4,6 +4,7 @@
          ["sockjs"])
 
 (load-file "./node_modules/cl2-contrib/src/concurrency.cl2")
+(load-file "./node_modules/cl2-contrib/src/json.cl2")
 (load-file "./node_modules/cl2-contrib/src/timers.cl2")
 (load-file "./node_modules/socket-cl2/src/server.cl2")
 
@@ -38,7 +39,6 @@
 
 (defsocket-handler :init
   (fn [_ _ send-response conn]
-    (console.log "Oh dear, init from " (:id conn))
     (send-response
      :init
      {:name (:name conn) :users (get-users)})))
@@ -65,7 +65,7 @@
 
 (. chat (installHandlers server {:prefix "/chat"}))
 
-(console.log " [*] Listening on 3000")
+(println " [*] Listening on 3000")
 (. server (listen 3000))
 
 (.
@@ -80,21 +80,14 @@
      (.use (. express (static (+ __dirname "/public"))))
      (.use (:router app)))))
 
-(. app
-   (configure
-    "development"
-    #(. app
-        (use
-         (. express
-            (errorHandler {:showStack true, :dumpExceptions true}))))))
-
-(. app
-   (configure
-    "production"
-    #(. app (use (. express errorHandler)))))
-
-(. app (get "/" (-> routes :index)))
-
-(. app (get "/partials/:name" (:partials routes )))
-
-;;(.. app (get "*" (-> routes :index)))
+(doto app
+  (.configure
+   "development"
+   #(. app (use (. express (errorHandler {:showStack true,
+                                          :dumpExceptions true})))))
+  (.configure
+   "production"
+   #(. app (use (. express errorHandler))))
+  (.get "/" (-> routes :index))
+  (.get "/partials/:name" (:partials routes))
+  (.get "*" (-> routes :index)))
