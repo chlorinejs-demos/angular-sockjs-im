@@ -3,24 +3,6 @@
 (def ^{:doc "Stores user-names currently in use"}
   claimed-names {})
 
-(defmacro do-interval [time & body]
-  `(setInterval
-    (fn []
-      ~@body)
-    ~time))
-
-(defn serialize
-  "Converts a message object to JSON strings so that it can be transfered
-over the network."
-  [msg]
-  (. JSON (stringify msg)))
-
-(defn deserialize
-  "Converts a serialized message back to object"
-  [data]
-  ;;TODO: error handler
-  (. JSON (parse data)))
-
 (defn claim
   "Registers a new user-name"
   [new-name]
