@@ -1,7 +1,8 @@
 (require ["./routes"]
          ["express"]
          ["http"]
-         ["sockjs"])
+         ["sockjs"]
+         ["gzippo"])
 
 (load-file "./node_modules/cl2-contrib/src/concurrency.cl2")
 (load-file "./node_modules/cl2-contrib/src/json.cl2")
@@ -77,7 +78,7 @@
      (.set "view options" {:layout false})
      (.use (. express bodyParser))
      (.use (. express methodOverride))
-     (.use (. express (static (+ __dirname "/public"))))
+     (.use (. gzippo (staticGzip (+ __dirname "/public"))))
      (.use (:router app)))))
 
 (doto app
