@@ -62,42 +62,46 @@
 
 (defservice socket
   []
-  (def sock (SockJS. sockjs-url nil
-                     {:protocols_whitelist
-                      ['xhr-polling]}))
-  (defsocket sock {:load-balancer-workaround? true})
-  (defsocket-handler :init
-    (fn [_ data]
-      (console.log "initializing... Go!")
-      (reset! name  data.name)
-      (reset! users data.users)))
+  (defn initialize-sockjs []
+    (SockJS. sockjs-url nil
+             {:protocols_whitelist
+              ['xhr-polling]}))
 
-  (defsocket-handler :text
-    (fn [_ data]
-      (swap! messages
-             #(concat % [{:text data.message, :user data.name}]))))
+  (defsocket sock initialize-sockjs
+    {:debug true :max-retries 5
+     :reconnect-interval 1000})
 
-  (defsocket-handler :change-name
-    (fn [_ data]
-      (scope-change-name (:old-name data) (:new-name data))))
+  (.on sock :init
+       (fn [_ data]
+         (reset! name  data.name)
+         (reset! users data.users)))
 
-  (defsocket-handler :new-user
-    (fn [_ data]
-      (swap! messages
-             #(concat % [{:text (+ "User " data.name " has joined."),
-                          :user "chatroom"}]))
-      (swap! users
-             #(concat % [data.name]))))
+  (.on sock :text
+       (fn [_ data]
+         (swap! messages
+                #(concat % [{:text data.message, :user data.name}]))))
 
-  (defsocket-handler :user-left
-    (fn [_ data]
-      (swap! messages
-             #(concat % [{:text (+ "User " data.name " has left."),
-                          :user "chatroom"}]))
+  (.on sock :change-name
+       (fn [_ data]
+         (scope-change-name (:old-name data) (:new-name data))))
 
-      (swap! users
-             (fn [coll]
-               (remove #(= data.name %)
-                       coll)))))
-  ;; returns the modified sockjs instance
+  (.on sock :new-user
+       (fn [_ data]
+         (swap! messages
+                #(concat % [{:text (+ "User " data.name " has joined."),
+                             :user "chatroom"}]))
+         (swap! users
+                #(concat % [data.name]))))
+
+  (.on sock :user-left
+       (fn [_ data]
+         (swap! messages
+                #(concat % [{:text (+ "User " data.name " has left."),
+                             :user "chatroom"}]))
+
+         (swap! users
+                (fn [coll]
+                  (remove #(= data.name %)
+                          coll)))))
+  ;; returns the reconnectable sockjs object
   sock)
