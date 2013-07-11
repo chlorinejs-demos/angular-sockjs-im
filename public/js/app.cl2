@@ -1,5 +1,6 @@
 (load-file "../../node_modules/cl2-contrib/src/concurrency.cl2")
 (load-file "../../node_modules/cl2-contrib/src/timers.cl2")
+(load-file "../../node_modules/cl2-contrib/src/json.cl2")
 (load-file "../../node_modules/angular-cl2/src/angular.cl2")
 (load-file "../../node_modules/socket-cl2/src/client.cl2")
 
@@ -10,17 +11,6 @@
 (def name (atom ""))
 (def users (atom []))
 (def messages (atom []))
-
-(defn serialize
-  "Converts a message map to a JSON string so that it can be transfered
-over the network."
-  [msg]
-  (. JSON (stringify msg)))
-
-(defn deserialize
-  "Converts a serialized message back to a map"
-  [data]
-  (. JSON (parse data)))
 
 (defn scope-change-name
   "Updates scope when someone changes his/her name. Helper function of
