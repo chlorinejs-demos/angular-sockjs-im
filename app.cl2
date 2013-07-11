@@ -44,13 +44,13 @@
                     :old-name old-name})))))
 
 (defsocket-handler :init
-  (fn [_ _ send-response conn]
-    (send-response
+  (fn [_ _ respond conn]
+    (respond
      :init
      {:name (:name conn) :users (get-users)})))
 
 (defsocket-handler :text
-  (fn [_ data send-response conn]
+  (fn [_ data respond conn]
     (console.log "Got some text. Have fun!")
     (set! data.message
           (.. data.message (substr 0 128)))
