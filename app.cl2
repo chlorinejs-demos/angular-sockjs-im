@@ -11,59 +11,56 @@
 
 (load-file "./routes/socket.cl2")
 
-(def chat
+(defsocket chat
   (. sockjs
      (createServer
       {:websocket false
-       :sockjs_url "http://cdn.sockjs.org/sockjs-0.3.min.js"})))
-
-(defsocket chat
-  {:on-open
+       :sockjs_url "http://cdn.sockjs.org/sockjs-0.3.min.js"}))
+  {;; :debug true
+   :on-open
    (fn [respond conn]
      (set! conn.name (gen-guest-name))
      (swap! socket-clients #(assoc % conn.id conn))
-     (broadcast :new-user {:name (:name conn)
-                           :users (get-users)}
-                [(:id conn)])
+     (.broadcast chat :new-user {:name (:name conn)
+                                   :users (get-users)}
+                   [(:id conn)])
      (respond :init {:name (:name conn)
-                           :users (get-users)}))
+                     :users (get-users)}))
    :on-close
    (fn [conn]
      (free-name (:name conn))
-     (broadcast :user-left {:name (:name conn)})
-     (console.log @socket-clients claimed-names))})
+     (.broadcast chat :user-left {:name (:name conn)}))})
 
-(defsocket-handler :change-name
-  (fn [_ data send-response conn]
-    (if (claim (:name data))
-      (let [old-name (:name conn)]
-        (free-name old-name)
-        (set! conn.name (:name data))
-        (broadcast :change-name
-                   {:new-name (:name data)
-                    :old-name old-name})))))
+(.on chat :change-name
+     (fn [_ data send-response conn]
+       (if (claim (:name data))
+         (let [old-name (:name conn)]
+           (free-name old-name)
+           (set! conn.name (:name data))
+           (.broadcast chat :change-name
+                       {:new-name (:name data)
+                        :old-name old-name})))))
 
-(defsocket-handler :init
+(.on chat :init
   (fn [_ _ respond conn]
     (respond
      :init
      {:name (:name conn) :users (get-users)})))
 
-(defsocket-handler :text
-  (fn [_ data respond conn]
-    (console.log "Got some text. Have fun!")
-    (set! data.message
-          (.. data.message (substr 0 128)))
+(.on chat :text
+     (fn [_ data respond conn]
+       (set! data.message
+             (.. data.message (substr 0 128)))
 
-    (broadcast
-     :text {:name (:name conn),
-            :message (:message data)}
-     [(:id conn)])))
+       (.broadcast chat
+                   :text {:name (:name conn),
+                          :message (:message data)}
+                   [(:id conn)])))
 
 (def app (express))
 (def server (. http (createServer app)))
 
-(. chat (installHandlers server {:prefix "/chat"}))
+(.install chat server {:prefix "/chat"})
 
 (println " [*] Listening on 3000")
 (. server (listen 3000))
