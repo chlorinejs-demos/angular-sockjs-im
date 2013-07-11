@@ -19,14 +19,19 @@
 
 (defsocket chat
   {:on-open
-   (fn [send-response conn]
+   (fn [respond conn]
      (set! conn.name (gen-guest-name))
      (swap! socket-clients #(assoc % conn.id conn))
      (broadcast :new-user {:name (:name conn)
                            :users (get-users)}
                 [(:id conn)])
-     (send-response :init {:name (:name conn)
-                           :users (get-users)}))})
+     (respond :init {:name (:name conn)
+                           :users (get-users)}))
+   :on-close
+   (fn [conn]
+     (free-name (:name conn))
+     (broadcast :user-left {:name (:name conn)})
+     (console.log @socket-clients claimed-names))})
 
 (defsocket-handler :change-name
   (fn [_ data send-response conn]
@@ -54,12 +59,6 @@
      :text {:name (:name conn),
             :message (:message data)}
      [(:id conn)])))
-
-(defsocket-handler :close
-  (fn [_ data send-response conn]
-    (free-name (:name conn))
-    (broadcast :user-left {:name (:name conn)})
-    (console.log @socket-clients claimed-names)))
 
 (def app (express))
 (def server (. http (createServer app)))
