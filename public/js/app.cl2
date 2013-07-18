@@ -1,8 +1,5 @@
-(load-file "../../node_modules/cl2-contrib/src/concurrency.cl2")
-(load-file "../../node_modules/cl2-contrib/src/timers.cl2")
-(load-file "../../node_modules/cl2-contrib/src/json.cl2")
-(load-file "../../node_modules/angular-cl2/src/angular.cl2")
-(load-file "../../node_modules/socket-cl2/src/client.cl2")
+(load-file "angular-cl2/src/angular.cl2")
+(load-file "socket-cl2/src/client.cl2")
 
 (def sockjs-url (+* window.location.protocol "//"
                     window.location.host

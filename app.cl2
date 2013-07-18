@@ -4,11 +4,7 @@
          ["sockjs"]
          ["gzippo"])
 
-(load-file "./node_modules/cl2-contrib/src/concurrency.cl2")
-(load-file "./node_modules/cl2-contrib/src/json.cl2")
-(load-file "./node_modules/cl2-contrib/src/timers.cl2")
-(load-file "./node_modules/socket-cl2/src/server.cl2")
-
+(load-file "socket-cl2/src/server.cl2")
 (load-file "./routes/socket.cl2")
 
 (defsocket chat
@@ -16,14 +12,14 @@
      (createServer
       {:websocket false
        :sockjs_url "http://cdn.sockjs.org/sockjs-0.3.min.js"}))
-  {;; :debug true
+  { ;; :debug true
    :on-open
    (fn [respond conn]
      (set! conn.name (gen-guest-name))
      (swap! socket-clients #(assoc % conn.id conn))
      (.broadcast chat :new-user {:name (:name conn)
-                                   :users (get-users)}
-                   [(:id conn)])
+                                 :users (get-users)}
+                 [(:id conn)])
      (respond :init {:name (:name conn)
                      :users (get-users)}))
    :on-close

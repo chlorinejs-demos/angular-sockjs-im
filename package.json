@@ -6,14 +6,13 @@
     "express": ">=3.0.0",
     "jade": ">= 0.26.1",
     "sockjs": ">= 0.3.5",
-    "angular-cl2": "0.3.1",
+    "angular-cl2": "0.3.2",
     "socket-cl2": "0.2.0",
-    "cl2-contrib": "0.2.3",
-    "chloric": "0.1.14",
+    "chloric": "0.1.15",
     "gzippo": "~0.2.0"
   },
   "scripts": {
-    "watch": "cl2c -p -d public/js/app.cl2 routes/index.cl2 routes/socket.cl2 app.cl2",
-    "compile": "cl2c -1 -B public/js/app.cl2 routes/index.cl2 routes/socket.cl2 app.cl2"
+    "watch": "cl2c -I node_modules -p -d public/js/app.cl2 routes/index.cl2 routes/socket.cl2 app.cl2",
+      "compile": "cl2c -I node_modules -1 -B public/js/app.cl2 routes/index.cl2 routes/socket.cl2 app.cl2"
   }
 }
