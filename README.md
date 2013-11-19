@@ -1,5 +1,7 @@
 # Angular SockJS IM Demo
 
+**DEPRECATED** in favour of [angular-sockjs-clojure](https://github.com/chlorinejs-demos/angular-sockjs-clojure)
+
 A simple instant messaging app written in Clojure/[Chlorine](https://github.com/chlorinejs/chlorine)
 
 You need Java, NodeJS and Bower installed.
